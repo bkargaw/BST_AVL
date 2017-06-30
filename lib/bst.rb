@@ -119,6 +119,7 @@ class BinarySearchTree
     return if node.nil?
     min_node = BinarySearchTree.min(node)
     return if  node == min_node
+    
     min_node.parent.left = min_node.right
     min_node.right.parent = min_node.parent
     min_node
