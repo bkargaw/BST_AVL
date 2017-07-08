@@ -1,3 +1,5 @@
+require 'byebug'
+
 class BSTNode
   attr_accessor :left, :right, :parent
   attr_reader :value
@@ -5,48 +7,47 @@ class BSTNode
   def initialize(value)
     @value = value
   end
-
 end
-require 'byebug'
+
 class BinarySearchTree
   def initialize
     @root = nil
   end
 
   def insert(value)
-    BinarySearchTree.insert!(@root, value)
+    @root = BinarySearchTree.insert!(@root, value)
   end
 
   def find(value)
-
+    BinarySearchTree.find!(@root, value)
   end
 
   def inorder
-
+    BinarySearchTree.inorder!(@root)
   end
 
   def postorder
-
+    BinarySearchTree.postorder!(@root)
   end
 
   def preorder
-
+    BinarySearchTree.preorder!(@root)
   end
 
   def height
-
+    BinarySearchTree.height!(@root)
   end
 
   def min
-
+    BinarySearchTree.min(@root)
   end
 
   def max
-
+    BinarySearchTree.max(@root)
   end
 
   def delete(value)
-
+    BinarySearchTree.delete!(@root, value)
   end
 
   def self.insert!(node, value)
@@ -75,7 +76,7 @@ class BinarySearchTree
     return if node.nil?
     left = BinarySearchTree.inorder!(node.left)
     right = BinarySearchTree.inorder!(node.right)
-    [node.value] + left  + right
+    [node.value] + left + right
   end
 
   def self.inorder!(node)
@@ -87,8 +88,8 @@ class BinarySearchTree
 
   def self.postorder!(node)
     return [] if node.nil?
-    left = BinarySearchTree.inorder!(node.left)
-    right = BinarySearchTree.inorder!(node.right)
+    left = BinarySearchTree.postorder!(node.left)
+    right = BinarySearchTree.postorder!(node.right)
     left + right + [node.value]
   end
 
@@ -119,9 +120,8 @@ class BinarySearchTree
     return if node.nil?
     min_node = BinarySearchTree.min(node)
     return if  node == min_node
-    
-    min_node.parent.left = min_node.right
-    min_node.right.parent = min_node.parent
+    min_node.parent.left = min_node.right if min_node.parent
+    min_node.right.parent = min_node.parent if min_node.right
     min_node
   end
 
@@ -131,20 +131,32 @@ class BinarySearchTree
 
     return if node.nil?
     parent = d_node.parent
-    if d_node.left && d_node.right
+    if parent && parent.left && parent.left.value == d_node.value
+      side = 'left'
+    elsif parent && parent.right && parent.right.value == d_node.value
+      side = 'right'
+    end
 
-    elsif d_node.left || d_node.right
-      child = d_node.left
-      if parent.left.value == d_node.value
-        BinarySearchTree.reassing(parent, d_node.right, 'left')
-      parent.right = nil if parent.right.value == d_node.value
+    if d_node.left && d_node.right
+      # first : use delete_min! to delete and get the min node from the
+      #         right sub tree
+      # second : delete the current node
+      # third : replace the current node with the min node
+      min_node = BinarySearchTree.delete_min!(d_node.right)
+      min_node = d_node.right if min_node.nil?
+      BinarySearchTree.reassing(parent, min_node, side) if parent
+      min_node.left = d_node.left
+    elsif d_node.left
+      BinarySearchTree.reassing(parent, d_node.left, side) if parent
+    elsif d_node.right
+      BinarySearchTree.reassing(parent, d_node.right, side) if parent
     else
-      return nil
+      side ? BinarySearchTree.reassing(parent, nil, side) : nil
     end
   end
 
   def self.reassing(parent, new_child, side)
-    new_child.parent = parent
+    new_child.parent = parent if new_child
     side == 'left' ? parent.left = new_child : parent.right = new_child
   end
 end

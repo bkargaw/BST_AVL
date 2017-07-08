@@ -194,7 +194,7 @@ describe BinarySearchTree do
 
   describe 'instance methods' do
     let(:tree) { BinarySearchTree.new }
-    let(:values) { [4,1,2,3,5,6,7] }
+    let(:values) { [4, 1, 2, 3, 5, 6, 7] }
 
     before(:each) do
       values.each do |val|
@@ -205,6 +205,9 @@ describe BinarySearchTree do
     describe '#find' do
       it 'returns nil if it can\'t find a value' do
         expect(BinarySearchTree.new.find(7)).to be_nil
+      end
+      it 'finds values that are in a tree' do
+        expect(tree.find(4).value).to eq(4)
       end
     end
 
